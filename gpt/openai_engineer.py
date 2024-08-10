@@ -33,28 +33,31 @@ class OpenAIEngineer(AIEngineer, OpenAI):
 
     # Main function to process the entire project
     def ai_engineer_project_files_prompt(self, project_path, prompt, context_prompt="", auto_discovery=False, ignore_file_rel_path=""):
-        self.ai_engineer_conversation_history = []
-        project_files = self.ai_engineer_build_dir_structure(project_path, project_path + "/" + ignore_file_rel_path)
+        self.project_root = project_path
+
+        project_dir_structure = self.ai_engineer_build_dir_structure(project_path, project_path + "/" + ignore_file_rel_path)
+        with open(project_path + "/ai_engineer_output/ai_engineer_conversation_history.json", "r", encoding="utf-8") as f: 
+            self.ai_engineer_conversation_history = json.loads(f.read())
+        project_dir_structure = self.ai_engineer_build_dir_structure(project_path, project_path + "/" + ignore_file_rel_path)
 
         if auto_discovery:
-            self.ai_engineer_conversation_history.append(self.ai_engineer_create_prompt(
+            self.ai_engineer_conversation_history_append(self.ai_engineer_create_prompt(
                 self.Roles.SYSTEM,
                 self.ai_engineer_system_prompts.AI_ENGINEER_PROJECT_FILES_DISCOVERY.value,
             )
             )
-            self.ai_engineer_conversation_history.append(
-                self.ai_engineer_create_prompt(self.Roles.USER, json.dumps(project_files))
+            self.ai_engineer_conversation_history_append(
+                self.ai_engineer_create_prompt(self.Roles.USER, json.dumps(project_dir_structure))
             )
 
 
             chat_iterations = 1
             response = self.ai_engineer_process_history()
-            while not response.choices[-1].message.content.startswith("READY") and chat_iterations < 10:
-                with open(f"{project_path}/ai_engineer_output/auto_discovery_init.md", "a+", encoding="utf-8") as f:
-                    f.write(response.choices[-1].message.content)
-                # append or create and append to a new file
+            response_choise = response.choices[-1].message.content
+            #  create a dir if not exists
 
-
+            while not response_choise.startswith("READY") and chat_iterations < 10:
+                self.ai_engineer_conversation_history_append(self.ai_engineer_create_prompt(self.Roles.ASSISTANT, response_choise))
                 if response.choices[-1].message.content.startswith("FILE_PATH"):
                     file_path = response.choices[-1].message.content.split(":")[1]
                     if os.path.exists(file_path):
@@ -64,9 +67,10 @@ class OpenAIEngineer(AIEngineer, OpenAI):
                     else:
                         prompt = self.ai_engineer_create_prompt(self.Roles.USER, f"Could not find specified file at file path: {file_path}")
 
-                    self.ai_engineer_conversation_history.append(prompt)
+                    self.ai_engineer_conversation_history_append(prompt)
                     chat_iterations += 1
                     response = self.ai_engineer_process_history()
+                    response_choise = response.choices[-1].message.content
                 else:
                     raise Exception("Unexpected response from AI model. Please check the conversation history at ai_engineer_output/auto_discovery_init.md")
                 
@@ -74,24 +78,24 @@ class OpenAIEngineer(AIEngineer, OpenAI):
             context_prompt = (
                 self.ai_engineer_create_prompt(self.Roles.SYSTEM,self.ai_engineer_system_prompts.AI_ENGINEER_PROJECT_FILES_GENERATOR.value)
             )
-        self.ai_engineer_conversation_history.append(context_prompt)
+        self.ai_engineer_conversation_history_append(context_prompt)
 
         # Cache the initial conversation history
         self.project_files_history_init_cache = copy.deepcopy(self.ai_engineer_conversation_history)
 
-        project_files_flat = self.ai_engineer_flatten_dir_structure(project_files)
-        for file_path, empty_value in project_files_flat.items():
+        project_dir_structure_flat = self.ai_engineer_flatten_dir_structure(project_dir_structure)
+        for file_path, empty_value in project_dir_structure_flat.items():
             if empty_value is None: # flattend end of the file path
                 # reset the conversation history
-                self.ai_engineer_conversation_history = [self.project_files_history_init_cache]
+                self.ai_engineer_conversation_history = self.project_files_history_init_cache
                 with open(file_path, "r", encoding="utf-8") as f:
                     file_content = f.read()
                 prompt_content = f"FILE_PATH:{file_path}\nFILE_CONTENT:\n{file_content}\nFILE_ACTION:{prompt}"
-                file_prompt = self.ai_engineer_create_prompt(self.Roles.USER, prompt_content)
-                self.ai_engineer_conversation_history.append(file_prompt)
+                self.ai_engineer_conversation_history_append(self.ai_engineer_create_prompt(self.Roles.USER, prompt_content))
                 response = self.ai_engineer_process_history()
-                for index, choice in enumerate(response.choices):
-                    reponse_markdown = choice.message.content
-                    file_root, _ = os.path.splitext(file_path)
-                    with open(f"{file_root}_ai_engineer_{index}.md", "w+", encoding="utf-8") as f:
-                        f.write(reponse_markdown)
+                response_choice = response.choices[-1].message.content
+                self.ai_engineer_conversation_history_append(self.ai_engineer_create_prompt(self.Roles.ASSISTANT, response_choice))
+                file_root, _ = os.path.splitext(file_path)
+                # todo: self.ai_engineer_convert_markdown_to_commented_language()
+                with open(f"{file_root}_ai_engineer.md", "w+", encoding="utf-8") as f:
+                    f.write(response_choice)

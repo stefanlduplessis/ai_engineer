@@ -2,6 +2,8 @@
 The AIEngineer class defines abstract methods for setting the prompt and response properties,
 processing the AI model's response, and handling the conversation history.
 """
+from datetime import datetime
+import json
 import re
 import os
 import fnmatch
@@ -19,10 +21,19 @@ class AIEngineer:
     """
 
     def __init__(self):
+        self.init_time = datetime.now() # Initialize the current time
         self.ai_engineer_conversation_history = []  # Store the conversation history
         self.ai_engineer_prompt = None  # Prompt to send to the AI model
         self.ai_engineer_response = None  # Response from the AI model
         self.ai_engineer_system_prompts = SystemPrompts
+        self.project_root = None
+
+    def ai_engineer_conversation_history_append(self, chat):
+        """
+        Append a new entry to the conversation history.
+        """
+        self.ai_engineer_conversation_history.append(chat)
+        self.ai_engineer_export_conversation_history()
 
     def ai_engineer_read_project_files(self, project_path):
         """
@@ -176,3 +187,9 @@ class AIEngineer:
                 flat_dict[current_path] = content  # File or empty directory
         
         return flat_dict
+    
+    def ai_engineer_export_conversation_history(self, file_prefix="ai_engineer_conversation_history"):
+        if not os.path.exists(f"{self.project_root}/ai_engineer_output"):
+            os.makedirs(f"{self.project_root}/ai_engineer_output")
+        with open(f"{self.project_root}/ai_engineer_output/" + file_prefix + "_" + self.init_time.strftime("%Y%m%d%H%M%S"), "w+", encoding="utf-8") as f:
+            f.write(json.dumps(self.ai_engineer_conversation_history, indent=4))
