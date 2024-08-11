@@ -32,20 +32,20 @@ class OpenAIEngineer(AIEngineer, OpenAI):
             messages=self.ai_engineer_conversation_history,
         )
 
-    def ai_engineer_project_files_prompt(self, project_path, prompt, context_prompt="", auto_discovery=False,
-                                         ignore_file_rel_path=""):
+    def ai_engineer_project_tree_prompt(self, project_path, prompt, context_prompt="", auto_context=False,
+                                         gitignore_file_path=""):
         """Main function to process project files with the AI model."""
         self.project_root = project_path
 
         project_dir_structure = self.ai_engineer_build_dir_structure(project_path,
-                                                                     project_path + "/" + ignore_file_rel_path)
+                                                                     project_path + "/" + gitignore_file_path)
 
         # Load existing conversation history
         with open(project_path + "/ai_engineer_output/ai_engineer_conversation_history.json", "r",
                   encoding="utf-8") as f:
             self.ai_engineer_conversation_history = json.loads(f.read())
 
-        if auto_discovery:
+        if auto_context:
             self.ai_engineer_conversation_history_append(self.ai_engineer_create_prompt(
                 self.Roles.SYSTEM,
                 self.ai_engineer_system_prompts.AI_ENGINEER_PROJECT_FILES_DISCOVERY.value,

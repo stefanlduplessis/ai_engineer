@@ -25,4 +25,5 @@ build/
 *.egg
 *.whl
 
-# Add any additional files or directories to ignore, if necessary
+# Ignore test files
+.env
