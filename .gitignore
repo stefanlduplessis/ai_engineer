@@ -1,5 +1,3 @@
-FILE_PATH:.gitignore
-FILE_CONTENT:
 # Ignore Git files and directories
 .git*
 .gitattributes
@@ -15,9 +13,7 @@ __pycache__*
 
 # Ignore IDE specific files
 .vscode*
-
-# Ignore AI Engineer output files
-ai_engineer_output*
+.idea*
 
 # Ignore runtime and temporary files
 *.log

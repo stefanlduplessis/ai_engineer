@@ -21,7 +21,7 @@ class AIEngineer:
     """
 
     def __init__(self):
-        self.init_time = datetime.now() # Initialize the current time
+        self.init_time = datetime.now()  # Initialize the current time
         self.ai_engineer_conversation_history = []  # Store the conversation history
         self.ai_engineer_prompt = None  # Prompt to send to the AI model
         self.ai_engineer_response = None  # Response from the AI model
@@ -35,25 +35,6 @@ class AIEngineer:
         self.ai_engineer_conversation_history.append(chat)
         self.ai_engineer_export_conversation_history()
 
-    def ai_engineer_read_project_files(self, project_path):
-        """
-        Read all files in a directory.
-
-        Args:
-            project_path (str): Path to the project directory.
-
-        Returns:
-            dict: A dictionary containing file paths as keys and file contents as values.
-        """
-        project_files = {}
-        for root, _, files in os.walk(project_path):
-            for file in files:
-                if file.endswith(".py") or file.endswith(".html"):  # Adjust as needed
-                    file_path = os.path.join(root, file)
-                    with open(file_path, "r", encoding="utf-8") as f:
-                        project_files[file_path] = f.read()
-        return project_files
-
     @staticmethod
     def ai_engineer_chunk_data(data, chunk_size=2000):
         """
@@ -66,9 +47,10 @@ class AIEngineer:
         Returns:
             list: A list of chunks.
         """
-        return [data[i : i + chunk_size] for i in range(0, len(data), chunk_size)]
+        return [data[i: i + chunk_size] for i in range(0, len(data), chunk_size)]
 
-    def ai_engineer_convert_markdown_to_commented_python(self, content):
+    @staticmethod
+    def ai_engineer_convert_markdown_to_commented_python(content):
         """
         Convert markdown content to commented Python code.
 
@@ -103,17 +85,33 @@ class AIEngineer:
 
         return python_script, python_comments
 
-    def ai_engineer_read_ignore_file(self, ignore_file_path):
+    @staticmethod
+    def ai_engineer_read_ignore_file(ignore_file_path):
         """
-        ignore_patterns = read_ignore_file('.ignore')
-        print(ignore_patterns)
-        # Output: ['*.log', 'temp/', 'build/', '*.tmp']
+        Read patterns from an ignore file to determine which files should be ignored.
+
+        Args:
+            ignore_file_path (str): Path to the ignore file.
+
+        Returns:
+            list: A list of patterns to ignore.
         """
         with open(ignore_file_path, 'r', encoding="utf-8") as file:
             ignore_patterns = [line.strip() for line in file if line.strip() and not line.startswith('#')]
         return ignore_patterns
 
-    def ai_engineer_should_ignore(self, path, ignore_patterns):
+    @staticmethod
+    def ai_engineer_should_ignore(path, ignore_patterns):
+        """
+        Check whether the given path matches any ignore patterns.
+
+        Args:
+            path (str): The file or directory path.
+            ignore_patterns (list): List of patterns.
+
+        Returns:
+            bool: True if path should be ignored, False otherwise.
+        """
         for pattern in ignore_patterns:
             if fnmatch.fnmatch(path, pattern):
                 return True
@@ -121,32 +119,14 @@ class AIEngineer:
 
     def ai_engineer_build_dir_structure(self, root_dir, ignore_file_path=""):
         """
-        /path/to/your/root
-        ├── dir1
-        │   ├── file1.txt
-        │   └── file2.txt
-        ├── dir2
-        │   ├── subdir1
-        │   │   └── file3.txt
-        │   └── subdir2
-        └── file4.txt
+        Build a directory structure representation of the project.
 
-        The resulting JSON file would look like:
-        {
-            "root": {
-                "dir1": {
-                    "file1.txt": null,
-                    "file2.txt": null
-                },
-                "dir2": {
-                    "subdir1": {
-                        "file3.txt": null
-                    },
-                    "subdir2": {}
-                },
-                "file4.txt": null
-            }
-        }
+        Args:
+            root_dir (str): The root directory to analyze.
+            ignore_file_path (str, optional): Path to a file with ignore patterns.
+
+        Returns:
+            dict: A dictionary representing the directory structure.
         """
         dir_structure = {}
 
@@ -174,22 +154,38 @@ class AIEngineer:
                     current_level[filename] = None
 
         return dir_structure
-    
+
     def ai_engineer_flatten_dir_structure(self, dir_structure, base_path=""):
+        """
+        Flatten a nested directory structure into a single-level dictionary.
+
+        Args:
+            dir_structure (dict): The directory structure to flatten.
+            base_path (str, optional): Base path for keys.
+
+        Returns:
+            dict: A flattened dictionary with file paths.
+        """
         flat_dict = {}
-        
+
         for name, content in dir_structure.items():
             current_path = os.path.join(base_path, name)
-            
+
             if isinstance(content, dict) and content:  # If it's a non-empty directory
                 flat_dict.update(self.ai_engineer_flatten_dir_structure(content, current_path))
             else:
                 flat_dict[current_path] = content  # File or empty directory
-        
+
         return flat_dict
-    
+
     def ai_engineer_export_conversation_history(self, file_prefix="ai_engineer_conversation_history"):
+        """
+        Export the conversation history to a JSON file.
+
+        Args:
+            file_prefix (str): Prefix for the output file name.
+        """
         if not os.path.exists(f"{self.project_root}/ai_engineer_output"):
             os.makedirs(f"{self.project_root}/ai_engineer_output")
-        with open(f"{self.project_root}/ai_engineer_output/" + file_prefix + "_" + self.init_time.strftime("%Y%m%d%H%M%S"), "w+", encoding="utf-8") as f:
+        with open(f"{self.project_root}/ai_engineer_output/" + file_prefix + "_" + self.init_time.strftime("%Y%m%d%H%M%S") + ".json", "w+", encoding="utf-8") as f:
             f.write(json.dumps(self.ai_engineer_conversation_history, indent=4))
