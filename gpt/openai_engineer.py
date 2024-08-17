@@ -48,7 +48,7 @@ class OpenAIEngineer(AIEngineer, OpenAI):
         if auto_context:
             self.ai_engineer_conversation_history_append(self.ai_engineer_create_prompt(
                 self.Roles.SYSTEM,
-                self.ai_engineer_system_prompts.AI_ENGINEER_PROJECT_FILES_DISCOVERY.value,
+                self.ai_engineer_system_prompts.AI_ENGINEER_PROJECT_TREE_DISCOVERY.value,
             ))
             self.ai_engineer_conversation_history_append(
                 self.ai_engineer_create_prompt(self.Roles.USER, json.dumps(project_dir_structure))
@@ -84,7 +84,7 @@ class OpenAIEngineer(AIEngineer, OpenAI):
         # Set context prompt if not provided
         if not context_prompt:
             context_prompt = self.ai_engineer_create_prompt(self.Roles.SYSTEM,
-                                                            self.ai_engineer_system_prompts.AI_ENGINEER_PROJECT_FILES_GENERATOR.value)
+                                                            self.ai_engineer_system_prompts.AI_ENGINEER_PROJECT_TREE_EDITOR.value)
         self.ai_engineer_conversation_history_append(context_prompt)
 
         # Cache the initial conversation history

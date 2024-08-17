@@ -13,7 +13,7 @@ def main():
     parser.add_argument('--api_key', type=str, default="", help="Your OpenAI API key.")
     parser.add_argument('--context_prompt', type=str, default="", help="Context prompt for the AI.")
     parser.add_argument('--auto_context', action='store_true', help="Enable auto-context discovery for model to prompt and feed itself the nessary files.")
-    parser.add_argument('--gitignore_file_path', type=str, default="", help="Relative path of .gitignore.")
+    parser.add_argument('--gitignore_file_path', type=str, default=".gitignore", help="Relative path of .gitignore.")
 
     # Parse arguments
     args = parser.parse_args()

@@ -1,7 +1,7 @@
 from enum import Enum
 
 class SystemPrompts(Enum):
-    AI_ENGINEER_PROJECT_FILES_DISCOVERY = """
+    AI_ENGINEER_PROJECT_TREE_DISCOVERY = """
         Directory structure JSON template...
         {
             "root": {
@@ -39,11 +39,11 @@ class SystemPrompts(Enum):
             READY
     """
 
-    AI_ENGINEER_PROJECT_FILES_DISCOVERY_MINIFY = """
+    AI_ENGINEER_PROJECT_TREE_DISCOVERY_MINIFY = """
         # TODO: Ask which lines are important, condense history for project files.
     """
 
-    AI_ENGINEER_PROJECT_FILES_GENERATOR = """
+    AI_ENGINEER_PROJECT_TREE_EDITOR = """
     You are a highly skilled code engineer specializing in reviewing and refactoring existing code,
     as well as generating new code based on user requirements. You can accept files in the following format:
 
@@ -73,4 +73,8 @@ class SystemPrompts(Enum):
             print(f"An error occurred: {e}")
 
     Please respond back only with the new FILE_CONTENT.
+    """
+
+    AI_ENGINEER_PROJECT_TREE_GENERATOR = """
+        # TODO: Generate a directory structure based on the user's input.
     """
