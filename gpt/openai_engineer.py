@@ -1,4 +1,5 @@
 import copy
+import logging
 from enum import Enum
 import json
 import os
@@ -40,10 +41,8 @@ class OpenAIEngineer(AIEngineer, OpenAI):
         project_dir_structure = self.ai_engineer_build_dir_structure(project_path,
                                                                      project_path + "/" + gitignore_file_path)
 
-        # Load existing conversation history
-        with open(project_path + "/ai_engineer_output/ai_engineer_conversation_history.json", "r",
-                  encoding="utf-8") as f:
-            self.ai_engineer_conversation_history = json.loads(f.read())
+        # Reset the conversation history
+        self.ai_engineer_conversation_history = []
 
         if auto_context:
             self.ai_engineer_conversation_history_append(self.ai_engineer_create_prompt(
@@ -91,13 +90,13 @@ class OpenAIEngineer(AIEngineer, OpenAI):
         self.project_files_history_init_cache = copy.deepcopy(self.ai_engineer_conversation_history)
 
         # Flatten the project directory structure
-        project_dir_structure_flat = self.ai_engineer_flatten_dir_structure(project_dir_structure)
+        project_dir_structure_flat = self.ai_engineer_flatten_dir_structure(project_dir_structure, project_path)
 
         for file_path, empty_value in project_dir_structure_flat.items():
             if empty_value is None:
                 # Reset the conversation history for each file
                 self.ai_engineer_conversation_history = self.project_files_history_init_cache
-
+                logging.info(f"Processing file: {file_path}")
                 with open(file_path, "r", encoding="utf-8") as f:
                     file_content = f.read()
                 prompt_content = f"FILE_PATH:{file_path}\nFILE_CONTENT:\n{file_content}\nFILE_ACTION:{prompt}"
@@ -110,6 +109,6 @@ class OpenAIEngineer(AIEngineer, OpenAI):
                 self.ai_engineer_conversation_history_append(
                     self.ai_engineer_create_prompt(self.Roles.ASSISTANT, response_choice))
 
-                file_root, _ = os.path.splitext(file_path)
-                with open(f"{file_root}_ai_engineer.md", "w+", encoding="utf-8") as f:
+                file_root, ext = os.path.splitext(file_path)
+                with open(f"{file_root}{ext}.ai_engineer.md", "w+", encoding="utf-8") as f:
                     f.write(response_choice)

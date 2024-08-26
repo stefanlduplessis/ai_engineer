@@ -8,7 +8,51 @@ import re
 import os
 import fnmatch
 from system_prompts import SystemPrompts
+import logging.config
 
+# Define the logging configuration dictionary
+logging_config = {
+    'version': 1,  # Required
+    'disable_existing_loggers': False,  # Keeps existing loggers active
+
+    # Formatters specify the layout of the log messages
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        },
+        'detailed': {
+            'format': '%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s'
+        },
+    },
+
+    # Handlers direct log messages to a particular destination
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': 'DEBUG',
+            'formatter': 'standard',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'level': 'DEBUG',
+            'formatter': 'detailed',
+            'filename': 'app.log',
+            'mode': 'a',  # Append mode
+        },
+    },
+
+    # Loggers capture log messages and route them to handlers
+    'loggers': {
+        '': {  # Root logger
+            'level': 'INFO',
+            'handlers': ['console', 'file'],
+            'propagate': False,  # Prevent log messages from propagating to the root logger
+        },
+    }
+}
+
+# Apply the logging configuration
+logging.config.dictConfig(logging_config)
 
 class AIEngineer:
     """
@@ -140,10 +184,10 @@ class AIEngineer:
                 if part != ".":
                     current_level = current_level.setdefault(part, {})
 
-            ignore_patterns = []
+            ignore_patterns = ["ai_engineer_output/*"]
             if ignore_file_path:
                 if os.path.exists(ignore_file_path):
-                    ignore_patterns = self.ai_engineer_read_ignore_file(ignore_file_path)
+                    ignore_patterns.extend(self.ai_engineer_read_ignore_file(ignore_file_path))
 
             # Modify dirnames in-place to remove ignored directories
             dirnames[:] = [d for d in dirnames if not self.ai_engineer_should_ignore(d + "/", ignore_patterns)]

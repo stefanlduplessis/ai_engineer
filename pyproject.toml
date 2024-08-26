@@ -23,6 +23,7 @@ pydantic-core = "^2"
 sniffio = "^1"
 tqdm = "^4"
 typing-extensions = "^4"
+python-dotenv = "^1.0.1"
 
 
 [build-system]

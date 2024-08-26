@@ -1,15 +1,16 @@
 import argparse
 import os
 from gpt.openai_engineer import OpenAIEngineer
-
+import traceback
+from dotenv import load_dotenv
 
 def main():
     # Set up argument parser
     parser = argparse.ArgumentParser(description="Run AI co-creator tasks with OpenAI.")
 
     # Add arguments
-    parser.add_argument('--project_path', type=str, required=True, help="Path to the project directory.")
-    parser.add_argument('--prompt', type=str, required=True, help="Action prompt for the AI.")
+    parser.add_argument('project_path', type=str, help="Path to the project directory.")
+    parser.add_argument('prompt', type=str, help="Action prompt for the AI.")
     parser.add_argument('--api_key', type=str, default="", help="Your OpenAI API key.")
     parser.add_argument('--context_prompt', type=str, default="", help="Context prompt for the AI.")
     parser.add_argument('--auto_context', action='store_true', help="Enable auto-context discovery for model to prompt and feed itself the nessary files.")
@@ -17,6 +18,9 @@ def main():
 
     # Parse arguments
     args = parser.parse_args()
+
+    # Load the environment variables
+    load_dotenv()
 
     # Get the OpenAI API key
     openai_api_key = os.environ.get("OPENAI_API_KEY", args.api_key)
@@ -36,9 +40,8 @@ def main():
             gitignore_file_path=args.gitignore_file_path
         )
         print("Processing completed successfully.")
-    except Exception as e:
-        print(f"Error during processing: {e}")
-
+    except Exception:
+        traceback.print_exc()   
 
 if __name__ == "__main__":
     main()
