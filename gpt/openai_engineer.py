@@ -34,7 +34,7 @@ class OpenAIEngineer(AIEngineer, OpenAI):
         )
 
     def ai_engineer_project_tree_prompt(self, project_path, prompt, context_prompt="", auto_context=False,
-                                         gitignore_file_path=""):
+                                         gitignore_file_path="", overwrite=False):
         """Main function to process project files with the AI model."""
         self.project_root = project_path
 
@@ -110,5 +110,7 @@ class OpenAIEngineer(AIEngineer, OpenAI):
                     self.ai_engineer_create_prompt(self.Roles.ASSISTANT, response_choice))
 
                 file_root, ext = os.path.splitext(file_path)
-                with open(f"{file_root}{ext}.ai_engineer.md", "w+", encoding="utf-8") as f:
+                if not overwrite:
+                    file_path = f"{file_root}{ext}.ai_engineer.md"
+                with open(file_path, "w+", encoding="utf-8") as f:
                     f.write(response_choice)

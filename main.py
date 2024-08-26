@@ -15,6 +15,7 @@ def main():
     parser.add_argument('--context_prompt', type=str, default="", help="Context prompt for the AI.")
     parser.add_argument('--auto_context', action='store_true', help="Enable auto-context discovery for model to prompt and feed itself the nessary files.")
     parser.add_argument('--gitignore_file_path', type=str, default=".gitignore", help="Relative path of .gitignore.")
+    parser.add_argument('--overwrite', action='store_true', help="Overwrite existing files.")
 
     # Parse arguments
     args = parser.parse_args()
@@ -37,7 +38,8 @@ def main():
             prompt=args.prompt,
             context_prompt=args.context_prompt,
             auto_context=args.auto_context,
-            gitignore_file_path=args.gitignore_file_path
+            gitignore_file_path=args.gitignore_file_path,
+            overwrite=args.overwrite,
         )
         print("Processing completed successfully.")
     except Exception:
