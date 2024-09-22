@@ -33,7 +33,7 @@ class SystemPrompts(Enum):
         Before doing so, you will receive the JSON template of the directory structure and the user prompt.
         Take the opportunity to analyze the directory structure and prompt, and ask for additional file content if needed, 
         just to get a high-level overview of the project.
-        When you ask, only prompt in this fashion:
+        When you ask, only prompt for one file at a time using, responding with:
             FILE_PATH:<path from project root>
         When satisfied with the directory structure and prompt, respond with:
             READY
@@ -72,7 +72,7 @@ class SystemPrompts(Enum):
         except Exception as e:
             print(f"An error occurred: {e}")
 
-    Please respond back only with the new FILE_CONTENT.
+    Please respond back with both the FILE_PATH and FILE_CONTENT.
     """
 
     AI_ENGINEER_PROJECT_TREE_GENERATOR = """
