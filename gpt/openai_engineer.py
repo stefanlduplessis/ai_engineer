@@ -41,8 +41,9 @@ class OpenAIEngineer(AIEngineer, OpenAI):
         )
 
     def ai_engineer_project_tree_prompt(self, project_path, prompt, mode: Modes, auto_file_discovery=False, reuse_auto_file_discovery=False,
-                                         gitignore_file_path="", overwrite=False):
+                                         gitignore_file_path="", overwrite=False, max_chat_iterations=25):
         """Main function to process project files with the AI model."""
+        chat_iterations = 0
         self.project_root = project_path
         project_dir_structure = self.ai_engineer_build_dir_structure(self.project_root,
                                                                      self.project_root + "/" + gitignore_file_path)
@@ -65,11 +66,9 @@ class OpenAIEngineer(AIEngineer, OpenAI):
             self.ai_engineer_conversation_history_append(
                 self.ai_engineer_create_prompt(self.Roles.USER, json.dumps(project_dir_structure))
             )
-
-            chat_iterations = 1
             response = self.ai_engineer_process_history()
             response_choice = response.choices[-1].message.content
-            while not response_choice.startswith("READY") and chat_iterations < 10:
+            while not "AI-ENGINEER:READY" in response_choice and chat_iterations < max_chat_iterations:
                 self.ai_engineer_conversation_history_append(
                     self.ai_engineer_create_prompt(self.Roles.ASSISTANT, response_choice))
                 requested_file_path, _ = self.ai_engineer_parse_response(response_choice)
@@ -79,7 +78,7 @@ class OpenAIEngineer(AIEngineer, OpenAI):
                         file_content = f.read()
                     prompt = self.ai_engineer_create_prompt(self.Roles.USER, file_content)
                 else:
-                    logging.error(f"Could not find specified file at file path: {requested_project_file_path}")
+                    logging.error("Could not find specified file at file path: %s", requested_project_file_path)
                     prompt = self.ai_engineer_create_prompt(self.Roles.USER,
                                                             f"Could not find specified file at file path: {requested_file_path}")
 
@@ -87,6 +86,8 @@ class OpenAIEngineer(AIEngineer, OpenAI):
                 chat_iterations += 1
                 response = self.ai_engineer_process_history()
                 response_choice = response.choices[-1].message.content
+            if chat_iterations == max_chat_iterations and not "AI-ENGINEER:READY" in response_choice:
+                logging.info("The model did not respond with AI-ENGINEER:READY after %s iterations.", max_chat_iterations)
             self.ai_engineer_export_conversation_history("ai_engineer_auto_context")
 
         # Process the project files based on the mode
@@ -99,8 +100,7 @@ class OpenAIEngineer(AIEngineer, OpenAI):
             response_choice = response.choices[-1].message.content
             self.ai_engineer_conversation_history_append(
             self.ai_engineer_create_prompt(self.Roles.ASSISTANT, response_choice))
-            iteration = 0
-            while not response_choice.startswith("READY") and iteration < 10:
+            while not "AI-ENGINEER:DONE" in response_choice and chat_iterations < max_chat_iterations:
                 ai_project_file_path, parsed_file_content = self.ai_engineer_parse_response(response_choice)
                 ai_project_file_path = ai_project_file_path.replace("project_root", self.project_root, 1)
                 if not overwrite:
@@ -116,9 +116,10 @@ class OpenAIEngineer(AIEngineer, OpenAI):
                 response_choice = response.choices[-1].message.content
                 self.ai_engineer_conversation_history_append(
                     self.ai_engineer_create_prompt(self.Roles.ASSISTANT, response_choice))
+                chat_iterations += 1
                 
-            if iteration == 9 and not response_choice.startswith("READY"):
-                logging.info("The model did not respond with READY after 10 iterations.")
+            if chat_iterations == max_chat_iterations and not "AI-ENGINEER:DONE" in response_choice:
+                logging.info("The model did not respond with AI-ENGINEER:DONE after %s iterations.", max_chat_iterations)
         elif mode == self.Modes.EDITOR.value:
             context_prompt = self.ai_engineer_create_prompt(self.Roles.SYSTEM, self.ai_engineer_system_prompts.AI_ENGINEER_PROJECT_TREE_EDITOR.value.format(prompt=prompt))
             self.ai_engineer_conversation_history_append(context_prompt)
@@ -133,7 +134,7 @@ class OpenAIEngineer(AIEngineer, OpenAI):
                     system_project_file_path = system_project_file_path_mask.replace("project_root", self.project_root, 1)
                     # Reset the conversation history for each file
                     self.ai_engineer_conversation_history = self.project_files_history_init_cache
-                    logging.info(f"Processing file: {system_project_file_path}")
+                    logging.info("Processing file: %s", system_project_file_path)
                     with open(system_project_file_path, "r", encoding="utf-8") as f:
                         file_content = f.read()
                     prompt_content = f"FILE_PATH:{system_project_file_path_mask}\nFILE_CONTENT:\n{file_content}\nFILE_ACTION:{prompt}"
@@ -154,4 +155,4 @@ class OpenAIEngineer(AIEngineer, OpenAI):
                         with open(ai_project_file_path, "w+", encoding="utf-8") as f:
                             f.write(parsed_file_content)
                     else:
-                        logging.error(f"File path mismatch: file_path_input:{system_project_file_path} != file_path_output:{ai_project_file_path}")
+                        logging.error("File path mismatch: file_path_input:%s != file_path_output:%s", system_project_file_path, ai_project_file_path)

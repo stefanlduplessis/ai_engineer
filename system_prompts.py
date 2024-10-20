@@ -38,7 +38,7 @@ class SystemPrompts(Enum):
         When you ask, only prompt for one file at a time, responding with:
             FILE_PATH:<path from project root>
         When satisfied with the directory structure and prompt, respond with:
-            READY
+            AI-ENGINEER:READY
     """
 
     AI_ENGINEER_PROJECT_TREE_DISCOVERY_MINIFY = """
@@ -62,7 +62,7 @@ class SystemPrompts(Enum):
 
     Please respond back with both and only the FILE_PATH and FILE_CONTENT as provided in the above Expected Output.
     When finsihed, respond with:
-        READY
+        AI-ENGINEER:DONE
     """
 
     AI_ENGINEER_PROJECT_TREE_EDITOR = """
@@ -93,5 +93,5 @@ class SystemPrompts(Enum):
         except Exception as e:
             print("An error occurred", e)
 
-    Please respond back with both the FILE_PATH and FILE_CONTENT.
+    Please respond back with both and only the FILE_PATH and FILE_CONTENT as provided in the above Expected Output.
     """

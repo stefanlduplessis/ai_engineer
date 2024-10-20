@@ -27,6 +27,8 @@ def main():
     parser.add_argument('--reuse_auto_file_discovery', action='store_true', help="Reuse the auto-file-discovery context from the previous run.")
     parser.add_argument('--gitignore_file_path', type=str, default=".gitignore", help="Relative path of .gitignore.")
     parser.add_argument('--overwrite', action='store_true', help="Overwrite existing files.")
+    parser.add_argument('--max_chat_iterations', type=int, default=25, help="Max chat iterations for the AI model.")
+
 
     # Parse arguments
     args = parser.parse_args()
@@ -54,6 +56,7 @@ def main():
             reuse_auto_file_discovery=args.reuse_auto_file_discovery,
             gitignore_file_path=args.gitignore_file_path,
             overwrite=args.overwrite,
+            max_chat_iterations=args.max_chat_iterations,
         )
         logger.info("Processing completed successfully.")
     except Exception as e:
