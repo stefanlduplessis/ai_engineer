@@ -12,16 +12,19 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 def main():
+    """
+    Main function to run AI co-creator tasks with OpenAI.
+    """
     # Set up argument parser
     parser = argparse.ArgumentParser(description="Run AI co-creator tasks with OpenAI.")
 
     # Add arguments
     parser.add_argument('project_path', type=str, help="Path to the project directory.")
-    parser.add_argument('prompt', type=str, help="Action prompt for the AI.")
+    parser.add_argument('prompt', type=str, help="Action prompt for the AI Engineer.")
+    parser.add_argument('mode', type=str, help="System mode for the AI Engineer.")
     parser.add_argument('--api_key', type=str, default="", help="Your OpenAI API key.")
-    parser.add_argument('--context_prompt', type=str, default="", help="Context prompt for the AI.")
-    parser.add_argument('--auto_context', action='store_true', help="Enable auto-context discovery for model to prompt and feed itself the necessary files.")
-    parser.add_argument('--reuse_auto_context', action='store_true', help="Reuse the auto-context from the previous run.")
+    parser.add_argument('--auto_file_discovery', action='store_true', help="Enable auto-file-discovery context for model to prompt and feed itself the necessary files.")
+    parser.add_argument('--reuse_auto_file_discovery', action='store_true', help="Reuse the auto-file-discovery context from the previous run.")
     parser.add_argument('--gitignore_file_path', type=str, default=".gitignore", help="Relative path of .gitignore.")
     parser.add_argument('--overwrite', action='store_true', help="Overwrite existing files.")
 
@@ -46,9 +49,9 @@ def main():
         engineer.ai_engineer_project_tree_prompt(
             project_path=args.project_path,
             prompt=args.prompt,
-            context_prompt=args.context_prompt,
-            auto_context=args.auto_context,
-            reuse_auto_context=args.reuse_auto_context,
+            mode=args.mode,
+            auto_file_discovery=args.auto_file_discovery,
+            reuse_auto_file_discovery=args.reuse_auto_file_discovery,
             gitignore_file_path=args.gitignore_file_path,
             overwrite=args.overwrite,
         )

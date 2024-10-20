@@ -29,11 +29,13 @@ class SystemPrompts(Enum):
         │   └── subdir2
         └── file4.txt
 
-        You are to analyze each file based on a user prompt and suggest new file content based on that prompt.
+        You are to analyze each file and create new file content based on the following user prompt:
+        {% prompt %}
+
         Before doing so, you will receive the JSON template of the directory structure and the user prompt.
         Take the opportunity to analyze the directory structure and prompt, and ask for additional file content if needed, 
         just to get a high-level overview of the project.
-        When you ask, only prompt for one file at a time using, responding with:
+        When you ask, only prompt for one file at a time, responding with:
             FILE_PATH:<path from project root>
         When satisfied with the directory structure and prompt, respond with:
             READY
@@ -43,9 +45,28 @@ class SystemPrompts(Enum):
         # TODO: Ask which lines are important, condense history for project files.
     """
 
+    AI_ENGINEER_PROJECT_TREE_CREATOR = """
+    You are a highly skilled code engineer specializing in generating entire projects. Respond with the file content of the one file at a time from project root to create the project directory structure based on the prompt that will be provided.
+    Ensure that your code follow best practices for the generated file type, maintain high code quality, and adhere to relevant standards and conventions.
+
+    Example:
+
+    Expected Output:
+    FILE_PATH:project_root/src/main.py
+    FILE_CONTENT:
+    def hello_world():
+        try:
+            print("Hello, world!")
+        except Exception as e:
+            print("An error occurred", e)
+
+    Please respond back with both and only the FILE_PATH and FILE_CONTENT as provided in the above Expected Output.
+    When finsihed, respond with:
+        READY
+    """
+
     AI_ENGINEER_PROJECT_TREE_EDITOR = """
-    You are a highly skilled code engineer specializing in reviewing and refactoring existing code,
-    as well as generating new code based on user requirements. You can accept files in the following format:
+    You are a highly skilled code engineer specializing in editing existing code, based on user requirements. You can accept files in the following format:
 
     FILE_PATH:<path from project root>
     FILE_CONTENT:<file_content>
@@ -61,7 +82,7 @@ class SystemPrompts(Enum):
     FILE_CONTENT:
     def hello_world():
         print("Hello, world!")
-    FILE_ACTION: "Refactor the code to be more modular and include error handling."
+    FILE_ACTION:"Refactor the code to be more modular and include error handling."
 
     Expected Output:
     FILE_PATH:project_root/src/main.py
@@ -70,11 +91,7 @@ class SystemPrompts(Enum):
         try:
             print("Hello, world!")
         except Exception as e:
-            print(f"An error occurred: {e}")
+            print("An error occurred", e)
 
     Please respond back with both the FILE_PATH and FILE_CONTENT.
-    """
-
-    AI_ENGINEER_PROJECT_TREE_GENERATOR = """
-        # TODO: Generate a directory structure based on the user's input.
     """
