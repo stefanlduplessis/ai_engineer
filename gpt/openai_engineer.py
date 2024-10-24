@@ -88,13 +88,15 @@ class OpenAIEngineer(AIEngineer, OpenAI):
                 response_choice = response.choices[-1].message.content
             if chat_iterations == max_chat_iterations and not "AI-ENGINEER:READY" in response_choice:
                 logging.info("The model did not respond with AI-ENGINEER:READY after %s iterations.", max_chat_iterations)
+            else:
+                logging.info("Auto-context generated successfully.")
             self.ai_engineer_export_conversation_history("ai_engineer_auto_context")
 
         # Process the project files based on the mode
         if mode == self.Modes.CREATOR.value:
             context_prompt = self.ai_engineer_create_prompt(self.Roles.SYSTEM, self.ai_engineer_system_prompts.AI_ENGINEER_PROJECT_TREE_CREATOR.value)
             self.ai_engineer_conversation_history_append(context_prompt)
-            user_prompt = self.ai_engineer_create_prompt(self.Roles.USER, prompt)
+            user_prompt = self.ai_engineer_create_prompt(self.Roles.USER, prompt + "\nOnly respond with one file at a time. I will prompt you for the next file.")
             self.ai_engineer_conversation_history_append(user_prompt)
             response = self.ai_engineer_process_history()
             response_choice = response.choices[-1].message.content
@@ -120,6 +122,8 @@ class OpenAIEngineer(AIEngineer, OpenAI):
                 
             if chat_iterations == max_chat_iterations and not "AI-ENGINEER:DONE" in response_choice:
                 logging.info("The model did not respond with AI-ENGINEER:DONE after %s iterations.", max_chat_iterations)
+            else:
+                logging.info("Project files created successfully.")
         elif mode == self.Modes.EDITOR.value:
             context_prompt = self.ai_engineer_create_prompt(self.Roles.SYSTEM, self.ai_engineer_system_prompts.AI_ENGINEER_PROJECT_TREE_EDITOR.value.format(prompt=prompt))
             self.ai_engineer_conversation_history_append(context_prompt)

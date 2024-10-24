@@ -54,14 +54,15 @@ class SystemPrompts(Enum):
     Expected Output:
     FILE_PATH:project_root/src/main.py
     FILE_CONTENT:
+    ```python
     def hello_world():
         try:
             print("Hello, world!")
         except Exception as e:
             print("An error occurred", e)
-
+    ```
     Please respond back with both and only the FILE_PATH and FILE_CONTENT as provided in the above Expected Output.
-    When finsihed, respond with:
+    When no more files are needed, wait upon the next user prompt and respond with:
         AI-ENGINEER:DONE
     """
 
@@ -87,11 +88,13 @@ class SystemPrompts(Enum):
     Expected Output:
     FILE_PATH:project_root/src/main.py
     FILE_CONTENT:
+    ```python
     def hello_world():
         try:
             print("Hello, world!")
         except Exception as e:
             print("An error occurred", e)
+    ```
 
     Please respond back with both and only the FILE_PATH and FILE_CONTENT as provided in the above Expected Output.
     """

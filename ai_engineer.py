@@ -133,6 +133,39 @@ class AIEngineer:
         return script, comments
 
     @staticmethod
+    def ai_engineer_extract_markdown_code_blocks(markdown_text):
+        """
+        Extracts code block contents from markdown text.
+
+        Args:
+            markdown_text (str): The markdown text containing code blocks.
+
+        Returns:
+            List[str]: A list of code block contents.
+        """
+        blocks = []
+        in_code_block = False
+        code_block_content = []
+
+        lines = markdown_text.splitlines()
+        for line in lines:
+            if re.match(r'^\s*```', line):
+                if not in_code_block:
+                    # Start of code block
+                    in_code_block = True
+                    code_block_content = []
+                else:
+                    # End of code block
+                    in_code_block = False
+                    code = '\n'.join(code_block_content)
+                    blocks.append(code)
+            elif in_code_block:
+                # Collect lines inside the code block
+                code_block_content.append(line)
+
+        return blocks
+    
+    @staticmethod
     def ai_engineer_read_ignore_file(ignore_file_path):
         """
         Read patterns from an ignore file to determine which files should be ignored.
@@ -262,17 +295,16 @@ class AIEngineer:
         file_content = ""
         file_path_match = re.match(r".*?FILE_PATH:(.*)", response)
         file_content_match = re.match(r".*?FILE_CONTENT:(.*)", response, flags=re.DOTALL)
-        parsed_markdown_content, parsed_markdown_comments = self.ai_engineer_parse_markdown(response)
         if file_path_match:
             file_path = file_path_match.group(1).strip()
         if file_content_match:
-            file_content = file_content_match.group(1).strip()
-        elif parsed_markdown_content or parsed_markdown_comments:
-            file_content = parsed_markdown_content
-            logging.info("AI model response comments for file path: %s", parsed_markdown_comments)
-        
+            code_blocks = self.ai_engineer_extract_markdown_code_blocks(file_content_match.group(1).strip())
+            if len(code_blocks) > 0:
+                logging.error("Unexpected response from AI model. Auto context: multiple code blocks detected. Picking first one. Please check the conversation history under ai_engineer_output")
+            file_content = code_blocks[0]
+
         if not file_path.startswith("project_root/"):
-            logging.exception("Unexpected response from AI model. Auto context: requested filepath not recognised. Please check the conversation history under ai_engineer_output")        
+            logging.error("Unexpected response from AI model. Auto context: requested filepath not recognised. Please check the conversation history under ai_engineer_output")        
         
         return file_path, file_content
 
