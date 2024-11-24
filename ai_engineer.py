@@ -2,6 +2,7 @@
 The AIEngineer class defines abstract methods for setting the prompt and response properties,
 processing the AI model's response, and handling the conversation history.
 """
+
 from datetime import datetime
 import json
 import re
@@ -12,48 +13,44 @@ import logging.config
 
 # Define the logging configuration dictionary
 logging_config = {
-    'version': 1,  # Required
-    'disable_existing_loggers': False,  # Keeps existing loggers active
-
+    "version": 1,  # Required
+    "disable_existing_loggers": False,  # Keeps existing loggers active
     # Formatters specify the layout of the log messages
-    'formatters': {
-        'standard': {
-            'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        },
-        'detailed': {
-            'format': '%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s'
+    "formatters": {
+        "standard": {"format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"},
+        "detailed": {
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s"
         },
     },
-
     # Handlers direct log messages to a particular destination
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'level': 'DEBUG',
-            'formatter': 'standard',
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "level": "DEBUG",
+            "formatter": "standard",
         },
-        'file': {
-            'class': 'logging.FileHandler',
-            'level': 'DEBUG',
-            'formatter': 'detailed',
-            'filename': 'app.log',
-            'mode': 'a',  # Append mode
+        "file": {
+            "class": "logging.FileHandler",
+            "level": "DEBUG",
+            "formatter": "detailed",
+            "filename": "app.log",
+            "mode": "a",  # Append mode
         },
     },
-
     # Loggers capture log messages and route them to handlers
-    'loggers': {
-        '': {  # Root logger
-            'level': 'INFO',
-            'handlers': ['console', 'file'],
-            'propagate': False,  # Prevent log messages from propagating to the root logger
+    "loggers": {
+        "": {  # Root logger
+            "level": "INFO",
+            "handlers": ["console", "file"],
+            "propagate": False,  # Prevent log messages from propagating to the root logger
         },
-    }
+    },
 }
 
 # Apply the logging configuration
 logging.config.dictConfig(logging_config)
 logger = logging.getLogger(__name__)
+
 
 class AIEngineer:
     """
@@ -94,7 +91,7 @@ class AIEngineer:
         Returns:
             list: A list of chunks.
         """
-        return [data[i: i + chunk_size] for i in range(0, len(data), chunk_size)]
+        return [data[i : i + chunk_size] for i in range(0, len(data), chunk_size)]
 
     @staticmethod
     def ai_engineer_parse_markdown(content):
@@ -149,7 +146,7 @@ class AIEngineer:
 
         lines = markdown_text.splitlines()
         for line in lines:
-            if re.match(r'^\s*```', line):
+            if re.match(r"^\s*```", line):
                 if not in_code_block:
                     # Start of code block
                     in_code_block = True
@@ -157,14 +154,14 @@ class AIEngineer:
                 else:
                     # End of code block
                     in_code_block = False
-                    code = '\n'.join(code_block_content)
+                    code = "\n".join(code_block_content)
                     blocks.append(code)
             elif in_code_block:
                 # Collect lines inside the code block
                 code_block_content.append(line)
 
         return blocks
-    
+
     @staticmethod
     def ai_engineer_read_ignore_file(ignore_file_path):
         """
@@ -176,9 +173,15 @@ class AIEngineer:
         Returns:
             list: A list of patterns to ignore.
         """
-        with open(ignore_file_path, 'r', encoding="utf-8") as file:
-            ignore_patterns = [line.strip() for line in file if line.strip() and not line.startswith('#')]
-        logger.info(f"Read {len(ignore_patterns)} patterns from ignore file: {ignore_file_path}")
+        with open(ignore_file_path, "r", encoding="utf-8") as file:
+            ignore_patterns = [
+                line.strip()
+                for line in file
+                if line.strip() and not line.startswith("#")
+            ]
+        logger.info(
+            f"Read {len(ignore_patterns)} patterns from ignore file: {ignore_file_path}"
+        )
         return ignore_patterns
 
     @staticmethod
@@ -216,7 +219,9 @@ class AIEngineer:
         ignore_patterns = ["ai_engineer_output*", ".gitignore"]
         if ignore_file_path:
             if os.path.exists(ignore_file_path):
-                ignore_patterns.extend(self.ai_engineer_read_ignore_file(ignore_file_path))
+                ignore_patterns.extend(
+                    self.ai_engineer_read_ignore_file(ignore_file_path)
+                )
 
         for dirpath, dirnames, filenames in os.walk(root_dir):
             rel_path = os.path.relpath(dirpath, root_dir)
@@ -228,13 +233,22 @@ class AIEngineer:
                     current_level = current_level.setdefault(part, {})
 
             # Filter out directories that should be ignored
-            dirnames[:] = [d for d in dirnames if not self.ai_engineer_should_ignore(os.path.join(rel_path, d) if rel_path != "." else d, ignore_patterns)]
+            dirnames[:] = [
+                d
+                for d in dirnames
+                if not self.ai_engineer_should_ignore(
+                    os.path.join(rel_path, d) if rel_path != "." else d, ignore_patterns
+                )
+            ]
 
             # Add files to the structure if they should not be ignored
             for filename in filenames:
-                if not self.ai_engineer_should_ignore(os.path.join(rel_path, filename) if rel_path != "." else filename, ignore_patterns):
+                if not self.ai_engineer_should_ignore(
+                    os.path.join(rel_path, filename) if rel_path != "." else filename,
+                    ignore_patterns,
+                ):
                     current_level[filename] = None
-        
+
         dir_structure = {"project_root": dir_structure}
 
         logger.info(f"Built directory structure for root directory: {root_dir}.")
@@ -258,14 +272,18 @@ class AIEngineer:
             current_path = os.path.join(base_path, name)
 
             if isinstance(content, dict) and content:  # If it's a non-empty directory
-                flat_dict.update(self.ai_engineer_flatten_dir_structure(content, current_path))
+                flat_dict.update(
+                    self.ai_engineer_flatten_dir_structure(content, current_path)
+                )
             else:
                 flat_dict[current_path] = content  # File or empty directory
 
         logger.debug("Flattened directory structure.")
         return flat_dict
 
-    def ai_engineer_export_conversation_history(self, file_prefix="ai_engineer_conversation_history"):
+    def ai_engineer_export_conversation_history(
+        self, file_prefix="ai_engineer_conversation_history"
+    ):
         """
         Export the conversation history to a JSON file.
 
@@ -290,22 +308,30 @@ class AIEngineer:
 
         Returns:
             str: Extracted code from the response.
-        """            
+        """
         file_path = ""
         file_content = ""
         file_path_match = re.match(r".*?FILE_PATH:(.*)", response)
-        file_content_match = re.match(r".*?FILE_CONTENT:(.*)", response, flags=re.DOTALL)
+        file_content_match = re.match(
+            r".*?FILE_CONTENT:(.*)", response, flags=re.DOTALL
+        )
         if file_path_match:
             file_path = file_path_match.group(1).strip()
         if file_content_match:
-            code_blocks = self.ai_engineer_extract_markdown_code_blocks(file_content_match.group(1).strip())
+            code_blocks = self.ai_engineer_extract_markdown_code_blocks(
+                file_content_match.group(1).strip()
+            )
             if len(code_blocks) > 0:
-                logging.error("Unexpected response from AI model. Auto context: multiple code blocks detected. Picking first one. Please check the conversation history under ai_engineer_output")
+                logging.error(
+                    "Unexpected response from AI model. Auto context: multiple code blocks detected. Picking first one. Please check the conversation history under ai_engineer_output"
+                )
             file_content = code_blocks[0]
 
         if not file_path.startswith("project_root/"):
-            logging.error("Unexpected response from AI model. Auto context: requested filepath not recognised. Please check the conversation history under ai_engineer_output")        
-        
+            logging.error(
+                "Unexpected response from AI model. Auto context: requested filepath not recognised. Please check the conversation history under ai_engineer_output"
+            )
+
         return file_path, file_content
 
     def ai_engineer_import_auto_context_latest(self):
@@ -315,10 +341,18 @@ class AIEngineer:
         Returns:
             list: The latest auto-context conversation history.
         """
-        auto_context_files = [f for f in os.listdir(f"{self.project_root}/ai_engineer_output") if f.startswith("ai_engineer_auto_context")]
+        auto_context_files = [
+            f
+            for f in os.listdir(f"{self.project_root}/ai_engineer_output")
+            if f.startswith("ai_engineer_auto_context")
+        ]
         if auto_context_files:
             latest_file = max(auto_context_files)
-            with open(f"{self.project_root}/ai_engineer_output/{latest_file}", "r", encoding="utf-8") as f:
+            with open(
+                f"{self.project_root}/ai_engineer_output/{latest_file}",
+                "r",
+                encoding="utf-8",
+            ) as f:
                 auto_context = json.load(f)
             logger.info("Imported latest auto-context from: %s", latest_file)
             return auto_context
