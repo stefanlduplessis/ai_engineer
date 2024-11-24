@@ -8,7 +8,7 @@ import json
 import re
 import os
 import fnmatch
-from system_prompts import SystemPrompts
+from .system_prompts import SystemPrompts
 import logging.config
 
 # Define the logging configuration dictionary
@@ -52,7 +52,7 @@ logging.config.dictConfig(logging_config)
 logger = logging.getLogger(__name__)
 
 
-class AIEngineer:
+class Core:
     """
     AIEngineer is an abstract base class that represents an AI engineer.
 

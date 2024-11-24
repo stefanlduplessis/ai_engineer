@@ -3,11 +3,11 @@ import logging
 from enum import Enum
 import json
 import os
-from ai_engineer import AIEngineer
+from ..core import Core
 from openai import OpenAI
 
 
-class OpenAIEngineer(AIEngineer, OpenAI):
+class OpenAIEngineer(Core, OpenAI):
     def __init__(self, api_key):
         super().__init__()  # Initialize the AIEngineer
         OpenAI.__init__(
@@ -38,7 +38,7 @@ class OpenAIEngineer(AIEngineer, OpenAI):
     def ai_engineer_process_history(self):
         """Process the conversation history to get a response from the AI model."""
         return self.chat.completions.create(
-            model="gpt-4o-mini",
+            model="o1-mini",
             messages=self.ai_engineer_conversation_history,
         )
 

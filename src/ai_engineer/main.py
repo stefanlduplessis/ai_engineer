@@ -5,7 +5,7 @@ import traceback
 
 from dotenv import load_dotenv
 
-from gpt.openai_engineer import OpenAIEngineer
+from src.ai_engineer.services.openai_engineer import OpenAIEngineer
 
 # Set up logging configuration
 logging.basicConfig(
@@ -14,7 +14,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def main():
+def Main():
     """
     Main function to run AI co-creator tasks with OpenAI.
     """
