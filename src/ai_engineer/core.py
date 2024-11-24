@@ -1,5 +1,5 @@
 """
-The AIEngineer class defines abstract methods for setting the prompt and response properties,
+The Core class defines abstract methods for setting the prompt and response properties,
 processing the AI model's response, and handling the conversation history.
 """
 

@@ -76,7 +76,7 @@ ai-engineer-cli main /path/to/project "Implement feature X" "development"
 You can also provide optional arguments as needed:
 
 ```bash
-my-cli main /path/to/project "Implement feature X" "development" \
+my-cli main /path/to/project "Implement feature X" "creator" \
     --api_key YOUR_API_KEY \
     --auto_file_discovery \
     --overwrite \
@@ -144,7 +144,7 @@ def run_engineer_tasks():
     engineer.ai_engineer_project_tree_prompt(
         project_path="/path/to/project",
         prompt="Implement feature X",
-        mode="development",
+        mode="creator",
         auto_file_discovery=True,
         reuse_auto_file_discovery=False,
         gitignore_file_path=".gitignore",
