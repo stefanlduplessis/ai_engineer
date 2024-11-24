@@ -7,9 +7,8 @@ from typing import Optional
 import typer
 from dotenv import load_dotenv
 
-from src.ai_engineer.services.openai_engineer import OpenAIEngineer
+from .services.openai_engineer import OpenAIEngineer
 
-# Initialize Typer app
 app = typer.Typer()
 
 # Set up logging configuration
@@ -18,6 +17,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+def cli():
+    """Entry point for the CLI."""
+    app()
 
 def load_api_key(provided_key: str) -> str:
     """
@@ -48,7 +50,7 @@ def load_api_key(provided_key: str) -> str:
 def main(
     project_path: str = typer.Argument(..., help="Path to the project directory."),
     prompt: str = typer.Argument(..., help="Action prompt for the AIEngineer."),
-    mode: str = typer.Argument(..., help="System mode for the AIEngineer."),
+    mode: str = typer.Argument(..., help="System mode for the AIEngineer. creator|editor"),
     api_key: Optional[str] = typer.Option(
         None, "--api_key", help="Your OpenAI API key."
     ),
@@ -111,4 +113,4 @@ def main(
 
 
 if __name__ == "__main__":
-    app()
+    cli()

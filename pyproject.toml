@@ -1,10 +1,13 @@
 [tool.poetry]
-name = "ai-engineer"
+name = "ai_engineer"
 version = "0.1.0"
 description = "A python lib for integrating with various AI models, starting with services from openai, to co-engineer with you on a project level."
 authors = ["Stefan du Plessis <67509094+stefanlduplessis@users.noreply.github.com>"]
 license = "MIT"
 readme = "README.md"
+packages = [
+    { include = "ai_engineer", from = "src" }
+]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -37,4 +40,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-ai-engineer-cli = "src.ai_engineer.main:Main"
+ai_engineer_cli = "ai_engineer.main:cli"

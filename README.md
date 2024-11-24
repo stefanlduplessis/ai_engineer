@@ -57,12 +57,12 @@ poetry shell
 
 ## 3. Using the CLI Tool
 
-Once installed, you can use your CLI tool (`ai-engineer-cli`) directly from the terminal.
+Once installed, you can use your CLI tool (`ai_engineer_cli`) directly from the terminal.
 
 ### **a. Basic Usage**
 
 ```bash
-ai-engineer-cli main /path/to/project "Implement feature X" "development"
+ai_engineer_cli main /path/to/project "Implement feature X" "development"
 ```
 
 **Arguments:**
@@ -97,7 +97,7 @@ my-cli main /path/to/project "Implement feature X" "creator" \
 Typer automatically generates help messages. Use the `--help` flag to see available commands and options:
 
 ```
-ai-engineer-cli main --help
+ai_engineer_cli main --help
 ```
 
 ---
