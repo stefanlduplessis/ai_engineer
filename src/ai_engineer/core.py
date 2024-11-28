@@ -180,7 +180,9 @@ class Core:
                 if line.strip() and not line.startswith("#")
             ]
         logger.info(
-            f"Read {len(ignore_patterns)} patterns from ignore file: {ignore_file_path}"
+            "Read %d patterns from ignore file: %s",
+            len(ignore_patterns),
+            ignore_file_path,
         )
         return ignore_patterns
 
@@ -198,9 +200,9 @@ class Core:
         """
         for pattern in ignore_patterns:
             if fnmatch.fnmatch(path, pattern):
-                logger.debug(f"Path {path} matches ignore pattern: {pattern}")
+                logger.debug("Path %s matches ignore pattern: %s", path, pattern)
                 return True
-        logger.debug(f"Path {path} does not match any ignore patterns.")
+        logger.debug("Path %s does not match any ignore patterns.", path)
         return False
 
     def ai_engineer_build_dir_structure(self, root_dir, ignore_file_path=""):
@@ -251,7 +253,7 @@ class Core:
 
         dir_structure = {"project_root": dir_structure}
 
-        logger.info(f"Built directory structure for root directory: {root_dir}.")
+        logger.info("Built directory structure for root directory: %s", root_dir)
         logger.debug("Directory structure: %s", json.dumps(dir_structure, indent=4))
         return dir_structure
 
@@ -297,7 +299,7 @@ class Core:
         file_path = f"{self.project_root}/ai_engineer_output/{file_prefix}_{self.init_time.strftime('%Y%m%d%H%M%S')}.json"
         with open(file_path, "w+", encoding="utf-8") as f:
             f.write(json.dumps(self.ai_engineer_conversation_history, indent=4))
-            logger.info(f"Exported conversation history to: {file_path}")
+            logger.info("Exported conversation history to: %s", file_path)
 
     def ai_engineer_parse_response(self, response):
         """
@@ -321,7 +323,7 @@ class Core:
             code_blocks = self.ai_engineer_extract_markdown_code_blocks(
                 file_content_match.group(1).strip()
             )
-            if len(code_blocks) > 0:
+            if len(code_blocks) > 1:
                 logging.error(
                     "Unexpected response from AI model. Auto context: multiple code blocks detected. Picking first one. Please check the conversation history under ai_engineer_output"
                 )

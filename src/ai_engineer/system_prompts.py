@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class SystemPrompts(Enum):
     AI_ENGINEER_PROJECT_TREE_DISCOVERY = """
         Directory structure JSON template...

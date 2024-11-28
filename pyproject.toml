@@ -34,6 +34,7 @@ typer = {extras = ["all"], version = "^0.13.1"}
 pydevd = "^3.1.0"
 isort = "^5.13.2"
 pylint = "^3.2.6"
+black = "^24.10.0"
 
 [build-system]
 requires = ["poetry-core"]

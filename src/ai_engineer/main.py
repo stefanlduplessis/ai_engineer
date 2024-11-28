@@ -1,4 +1,5 @@
 """Main entry point for the AIEngineer CLI application."""
+
 import logging
 import os
 import traceback
@@ -17,9 +18,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 def cli():
     """Entry point for the CLI."""
     app()
+
 
 def load_api_key(provided_key: str) -> str:
     """
@@ -50,7 +53,9 @@ def load_api_key(provided_key: str) -> str:
 def main(
     project_path: str = typer.Argument(..., help="Path to the project directory."),
     prompt: str = typer.Argument(..., help="Action prompt for the AIEngineer."),
-    mode: str = typer.Argument(..., help="System mode for the AIEngineer. creator|editor"),
+    mode: str = typer.Argument(
+        ..., help="System mode for the AIEngineer. creator|editor"
+    ),
     api_key: Optional[str] = typer.Option(
         None, "--api_key", help="Your OpenAI API key."
     ),

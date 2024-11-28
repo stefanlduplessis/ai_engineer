@@ -38,7 +38,7 @@ class OpenAIEngineer(Core, OpenAI):
     def ai_engineer_process_history(self):
         """Process the conversation history to get a response from the AI model."""
         return self.chat.completions.create(
-            model="o1-mini",
+            model="gpt-4o-mini",
             messages=self.ai_engineer_conversation_history,
         )
 
